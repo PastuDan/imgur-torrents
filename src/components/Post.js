@@ -28,7 +28,7 @@ export default class Post extends Component {
         });
 
         return (
-            <div className="content">
+            <div className={this.props.className}>
                 <h1 className="title">{this.props.title}</h1>
                 {images}
                 <div className="actionbar"></div>
