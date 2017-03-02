@@ -63,7 +63,7 @@ export default class Post extends Component {
                             <i className="fa fa-ellipsis-h"></i>
                           </button>
                           <ul className="dropdown-menu">
-                            <li><a href="#reportPost" data-toggle="modal">Report Post</a></li>
+                            <li><a href="#" data-toggle="modal">Report Post</a></li>
                             <li><a href="#">Download Post</a></li>
                             <li><a href="#">Embed Post</a></li>
                           </ul>
