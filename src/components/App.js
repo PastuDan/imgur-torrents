@@ -17,25 +17,29 @@ export default class App extends Component {
                 <span className="icon-bar"></span>
               </button>
               <Link to="/" className="navbar-brand">
-              	<img src="/img/brand.svg" height="20" alt="imgur" />
+                <img src="/img/brand.svg" height="20" alt="imgur" />
               </Link>
             </div>
             <div className="collapse navbar-collapse" id="primary-navbar-collapse">
               <ul className="nav navbar-nav">
                 <li><Link to="/">Explore</Link></li>
               </ul>
-              <form className="navbar-form navbar-left">
+              <form method="get" action="/search" className="navbar-form navbar-left">
                 <div className="form-group">
                   <div className="input-group">
-                  	<input type="text" className="form-control" placeholder="Search" />
-                  	<div className="input-group-btn">
-                	  <button type="submit" className="btn btn-default">
-                	  	<i className="fa fa-search" />
-                	  </button>
-                	</div>
-              	  </div>
+                    <input type="text" name="q" className="form-control" placeholder="Search" />
+                    <div className="input-group-btn">
+                    <button type="submit" className="btn btn-default">
+                      <i className="fa fa-search" />
+                    </button>
+                  </div>
+                  </div>
                 </div>
               </form>
+              <ul className="nav navbar-nav navbar-right">
+                <li><a href="https://imgur.com/register">Sign Up</a></li>
+                <li><a href="https://api.imgur.com/oauth2/authorize">Sign In</a></li>
+              </ul>
             </div>
           </div>
         </nav>
