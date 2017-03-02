@@ -17,7 +17,7 @@ header .logo {
     height: 50px;
     width: 100px;
     margin: 0 auto;
-    background: url('http://s.imgur.com/images/imgur-logo.svg') center center no-repeat;
+    background: url('/img/brand.svg') center center no-repeat;
     display: block;
 }
 
