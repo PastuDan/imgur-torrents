@@ -18,10 +18,9 @@ export default class Post extends Component {
             const ratio = image.width / width;
             const height = Math.min(image.height, image.height / ratio);
 
-            console.log(height, width);
             return <div key={image.id} className="image">
                 <div className="crop">
-                    <img src={image.link} alt={image.title} width={width} height={height} />
+                    <img src={image.memoryURL} alt={image.title} width={width} height={height} />
                 </div>
                 {image.description ? <div className="description">{image.description}</div> : <div className="spacer"></div>}
             </div>;
