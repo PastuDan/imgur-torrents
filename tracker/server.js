@@ -30,7 +30,7 @@ server.on('listening', function () {
 });
 
 // start tracker server listening! Use 0 to listen on a random free port.
-server.listen('8800', '0.0.0.0');
+server.listen('8800');
 
 // listen for individual tracker messages from peers:
 
@@ -47,7 +47,7 @@ setInterval(() => {
         console.log(`peer info for ${infoHash}`);
         Object.keys(server.torrents[infoHash].peers.cache).forEach(peerId => {
             let peer = server.torrents[infoHash].peers.cache[peerId].value;
-            console.log(peer.complete, peer.ip, peer.port);
+            console.log(peer.complete, peer.ip, peer.port, peer.type);
         });
     });
 }, 1000);
