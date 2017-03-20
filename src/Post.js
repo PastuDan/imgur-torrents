@@ -6,7 +6,7 @@ export default class Post extends Component {
 
     render() {
         let images = this.props.images || [{
-                hash: this.props.hash,
+                id: this.props.id,
                 height: this.props.height,
                 width: this.props.width,
                 link: this.props.link,

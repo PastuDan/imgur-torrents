@@ -76,7 +76,7 @@ const tracker = {
             console.log(`Fetched all images in ${(now() - start).toFixed(3)} ms`);
             client.seed(this.images, {
                 name: 'imgur.com',
-                announceList: [['ws://localhost:8800']]
+                announceList: [['ws://swoosh.io:8900/announce'], ['http://swoosh.io:8900/announce']]
             }, this.onSeed.bind(this));
         });
     },
@@ -114,6 +114,21 @@ const tracker = {
     onSeed: function (torrent) {
         this.torrentFile = torrent.torrentFile;
         this.startApiServer();
+
+        console.log(`progress: ${torrent.progress}`);
+        //
+        // torrent.wires.forEach(function (wire) {
+        //     console.log(wire.remoteAddress)
+        // })
+        //
+        // // print out ips of new wires the client connects to
+        // torrent.on('wire', function (wire, addr) {
+        //     console.log(addr);
+        // })
+        //
+        // torrent.on('noPeers', function (announceType) {
+        //     console.warn('no peers found!')
+        // })
     }
 };
 
