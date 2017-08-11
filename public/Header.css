@@ -1,0 +1,32 @@
+.logo {
+    font-weight: 100;
+    padding: 16px;
+    letter-spacing: 2px;
+    font-size: 16px;
+    transition: 2s letter-spacing;
+    position: absolute;
+    left: 0;
+    right: 0;
+}
+
+.logo.wide {
+    letter-spacing: 0px;
+    animation: letter;
+}
+
+.status-light {
+    position: absolute;
+    left: 15px;
+    top: 15px;
+    width: 8px;
+    height:  20px;
+    border-radius: 20px;
+    background-color: #6f7379;
+    box-shadow: none;
+    transition: 200ms background-color, 200ms box-shadow;
+}
+
+.status-light.active {
+    background-color: var(--greenStatusLight);
+    box-shadow: 0 0 6px 3px var(--greenStatusLightShadow);
+}

@@ -1,0 +1,28 @@
+.grid {
+    padding:20px;
+}
+
+.grid-item {
+    float: left;
+    width: 75px;
+    height: 75px;
+    font-size: 11px;
+    font-weight: 100;
+    text-align: center;
+    line-height: 115px;
+    vertical-align: baseline;
+    padding: 5px;
+    border-radius: 10px;
+}
+
+.grid-item.placeholder {
+    border: 3px dashed #2085ce;
+}
+
+.light .grid-item.placeholder {
+    background: var(--dropTargetLight);
+}
+
+.dark .grid-item.placeholder {
+    background: var(--dropTargetDark);
+}
