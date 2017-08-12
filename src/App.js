@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import Post from './Post';
 import PeerList from './PeerList';
 import SideGallery from './SideGallery';
@@ -8,29 +8,17 @@ import WebTorrent from 'webtorrent';
 // var Client = require('bittorrent-tracker');
 
 
-
 export default class App extends Component {
     state = {
         posts: [],
         peerList: [],
-        postIndex: 0
+        postIndex: 0,
     };
 
     client = new WebTorrent();
     torrent = null;
 
     componentDidMount() {
-        // window.fetch('https://api.imgur.com/3/gallery/hot/viral/day/0?album_previews=true', {
-        //     headers: new Headers({'Authorization': 'Client-ID aa587c2ff1c3c66'}),
-        // }).then(res => res.json()).then(res => {
-        //     this.setState({
-        //         posts: res.data,
-        //     });
-        //     this.loadPost(res.data[0]);
-        // }).catch((err) => {
-        //     console.log(err);
-        // });
-
         window.fetch('http://localhost:3100/torrent').then(res => res.blob()).then(res => {
             this.client.add(res, null, this.onTorrent);
         }).catch(err => {
@@ -46,27 +34,39 @@ export default class App extends Component {
         });
     }
 
-    onTorrent(torrent) {
-        torrent.wires.forEach(function (wire) {
-            console.log(wire)
-        });
-
+    onTorrent = (torrent) => {
         // print out ips of new wires the client connects to
-        torrent.on('wire', function (wire, addr) {
-            console.log(wire, addr);
-            console.log(wire.peerId.toString());
-            console.log(wire.remoteAddress);
+        torrent.on('wire', peer => {
+            // keep peerList deduped
+            if (this.state.peerList.map(peer => peer.remoteAddress).includes(peer.remoteAddress)) {
+                return;
+            }
+
+            this.state.peerList.push(peer);
+            this.setState({
+                peerList: this.state.peerList
+            })
         });
 
-        torrent.on('noPeers', function (announceType) {
-            // console.warn('no peers found!')
-        });
+        torrent.on('download', bytes => {
+            this.setState({
+                downloaded: torrent.downloaded,
+                downloadSpeed: torrent.downloadSpeed,
+                progress: torrent.progress
 
-        torrent.files[0].getBuffer((err, buffer) => {
-            let posts = this.state.posts;
-            posts[0].images[0].memoryURL = URL.createObjectURL(buffer);
-            this.setState({posts})
+
+            })
         })
+        //
+        // // immediately prioritize the first image
+        // torrent.files[0].getBuffer((err, buffer) => {
+        //     let posts = this.state.posts;
+        //     posts[0].images[0].memoryURL = URL.createObjectURL(new Blob([buffer], { type: "image/jpeg" }));
+        //     this.setState({ posts })
+        // })
+
+        //todo remove
+        window.torrent = torrent
     }
 
     nav(delta) {
@@ -93,6 +93,13 @@ export default class App extends Component {
                         <button className="secondary" onClick={this.nav.bind(this, -1)}>Prev</button>
                         <button className="primary" onClick={this.nav.bind(this, 1)}>Next</button>
                     </div>
+                    <ul className="panel right-rail">
+                        <li>Downloaded: {Math.round(this.state.downloaded/1024/1024)}MB</li>
+                        <li>Speed: {Math.round(this.state.downloadSpeed/1024).toLocaleString()}KB/s</li>
+                        <li className="progress">
+                            <div className="progress-inner" style={{width: this.state.progress+'%'}}></div>
+                        </li>
+                    </ul>
                     <PeerList className="panel right-rail peerlist" peerList={this.state.peerList}/>
                     <SideGallery className="right-rail sidegallery"
                                  posts={this.state.posts}
