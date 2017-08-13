@@ -26,6 +26,7 @@ const client = new WebTorrent({
 const app = express();
 const clientId = 'aa587c2ff1c3c66';
 const now = require('performance-now');
+const downloadDir = 'images';
 
 // // get the number of seeders for a particular torrent
 // server.torrents[infoHash].complete
@@ -63,43 +64,46 @@ const tracker = {
             images = [].concat.apply([], images);
             const hashes = images.map(image => image.id);
 
+            console.log(`${body.data.length} posts, ${hashes.length} images`)
+
             this.fetchImages(hashes);
         });
     },
 
     fetchImages: function(hashes) {
         const start = now();
-        hashes = hashes.slice(0,1); //tmp slice just for testing
-        async.eachLimit(hashes, 25, (hash, callback) => {
-            request({
-                method: 'GET',
-                url: `http://i.imgur.com/${hash}.jpg`,
-                encoding: null,
-            }, (error, response, image) => {
-                image.name = `/${hash}.jpg`; // use the imgur image hash as the filename for when we create the torrent
-                this.images.push(image);
+        async.eachLimit(hashes, 10, (hash, callback) => {
+            const filename = `${downloadDir}/${hash}.jpg`;
+            fs.exists(filename, exists => {
+                if (exists) {
+                    callback();
+                    return;
+                }
 
-                fs.writeFile(`./${hash}.jpg`, image, function() {
+                const httpStream = request(`http://i.imgur.com/${hash}.jpg`);
+
+                httpStream.pipe(fs.createWriteStream(filename));
+
+                httpStream.on('error', function(err){
+                    console.log(`http download error - ${hash}`, err)
                     callback();
                 });
 
-                const mem = process.memoryUsage();
-                Object.keys(mem).forEach(key => {
-                    mem[key] = (mem[key]/1024/1024).toFixed(1);
+                httpStream.on('end', function () {
+                    console.log(`downloaded ${hash}`);
+                    callback();
                 });
-                console.log(`fetched ${hash} - RSS: ${mem.rss}MB - Heap: ${mem.heapUsed}/${mem.heapTotal}Mb - External: ${mem.external}Mb`);
+
             });
         }, () => {
             console.log(`Fetched all images in ${(now() - start).toFixed(3)} ms`);
             // console.log(this.images);
-            const imageFiles = hashes.map(hash => `${hash}.jpg`)
-            const torrent = client.seed(`./images/`, {
-                name: 'imgur.com',
+            const fileList = hashes.map(hash => `${downloadDir}/${hash}.jpg`)
+            const torrent = client.seed(fileList, {
+                name: downloadDir,
                 path: './',
                 announceList: [['http://swoosh.io/announce'], ['ws://swoosh.io/announce']]
             }, this.onSeed.bind(this));
-
-            console.log('INITIAL PROGRESS: '+torrent.progress);
 
             torrent.on('warning', function (err) {
                 console.log('TORRENT WARNING: ', err.message)
@@ -121,8 +125,6 @@ const tracker = {
         app.listen(3100, function () {
             console.log('API server listening on port 3100')
         })
-
-        fs.writeFile('dan.torrent', this.torrentFile)
     },
 
     onSeed: function (torrent) {

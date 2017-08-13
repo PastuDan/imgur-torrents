@@ -19,13 +19,13 @@ export default class App extends Component {
     torrent = null;
 
     componentDidMount() {
-        window.fetch('http://localhost:3100/torrent').then(res => res.blob()).then(res => {
+        window.fetch('http://swoosh.io:3100/torrent').then(res => res.blob()).then(res => {
             this.client.add(res, null, this.onTorrent);
         }).catch(err => {
             console.log(err);
         });
 
-        window.fetch('http://localhost:3100/posts').then(res => res.json()).then(res => {
+        window.fetch('http://swoosh.io:3100/posts').then(res => res.json()).then(res => {
             this.setState({
                 posts: res,
             });
@@ -57,13 +57,14 @@ export default class App extends Component {
 
             })
         })
-        //
-        // // immediately prioritize the first image
-        // torrent.files[0].getBuffer((err, buffer) => {
-        //     let posts = this.state.posts;
-        //     posts[0].images[0].memoryURL = URL.createObjectURL(new Blob([buffer], { type: "image/jpeg" }));
-        //     this.setState({ posts })
-        // })
+
+        // immediately prioritize the first image
+        const currentHash = this.state.posts[this.state.postIndex].images[0].id;
+        torrent.files.find(file => file.name.substr(0,file.name.length-4) === currentHash).getBuffer((err, buffer) => {
+            let posts = this.state.posts;
+            posts[0].images[0].memoryURL = URL.createObjectURL(new Blob([buffer], { type: "image/jpeg" }));
+            this.setState({ posts })
+        })
 
         //todo remove
         window.torrent = torrent
@@ -93,11 +94,11 @@ export default class App extends Component {
                         <button className="secondary" onClick={this.nav.bind(this, -1)}>Prev</button>
                         <button className="primary" onClick={this.nav.bind(this, 1)}>Next</button>
                     </div>
-                    <ul className="panel right-rail">
+                    <ul className="panel right-rail stats">
                         <li>Downloaded: {Math.round(this.state.downloaded/1024/1024)}MB</li>
                         <li>Speed: {Math.round(this.state.downloadSpeed/1024).toLocaleString()}KB/s</li>
                         <li className="progress">
-                            <div className="progress-inner" style={{width: this.state.progress+'%'}}></div>
+                            <div className="progress-inner" style={{width: this.state.progress*100+'%'}}></div>
                         </li>
                     </ul>
                     <PeerList className="panel right-rail peerlist" peerList={this.state.peerList}/>
