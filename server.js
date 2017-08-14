@@ -7,7 +7,7 @@ const fs = require('fs');
 
 const client = new WebTorrent({
     tracker: {
-        announceList: ['http://swoosh.io', 'ws://swoosh.io'], // list of tracker server urls
+        announceList: ['http://swoosh.io:8900', 'ws://swoosh.io:8900'], // list of tracker server urls
         getAnnounceOpts: function () {
             // Provide a callback that will be called whenever announce() is called
             // internally (on timer), or by the user
@@ -104,7 +104,7 @@ const tracker = {
             const torrent = client.seed(fileList, {
                 name: downloadDir,
                 path: './',
-                announceList: [['http://swoosh.io/announce'], ['ws://swoosh.io/announce']]
+                announceList: [['http://swoosh.io:8900/announce'], ['ws://swoosh.io:8900/announce']]
             }, this.onSeed.bind(this));
 
             torrent.on('warning', function (err) {
