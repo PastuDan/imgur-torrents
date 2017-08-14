@@ -1,13 +1,11 @@
 const request = require('request');
 const async = require('async');
-const parseTorrent = require('parse-torrent');
 const express = require('express');
 const WebTorrent = require('webtorrent-hybrid');
 const cors = require('cors');
 const fs = require('fs');
 
 const client = new WebTorrent({
-    // wrtc: true,
     tracker: {
         announceList: ['http://swoosh.io', 'ws://swoosh.io'], // list of tracker server urls
         getAnnounceOpts: function () {
@@ -42,7 +40,7 @@ const tracker = {
     posts: null,
 
     fetchImgurPosts: function() {
-        var options = {
+        const options = {
             method: 'GET',
             url: 'https://api.imgur.com/3/gallery/hot/viral/day/0',
             qs: {
@@ -59,46 +57,50 @@ const tracker = {
                 console.log(error);
             }
 
-            this.posts = body.data;
-            let images = body.data.filter(post => post.images).map(post => post.images).concat();
-            images = [].concat.apply([], images);
-            const hashes = images.map(image => image.id);
+            // limit number of posts
+            this.posts = body.data.slice(0,20);
 
-            console.log(`${body.data.length} posts, ${hashes.length} images`)
+            // create a flattened array of all the images
+            const albumImages = this.posts.filter(post => post.is_album).map(post => post.images);
+            const singleImages = this.posts.filter(post => !post.is_album);
+            const images = [].concat.apply([], albumImages).concat(singleImages);
 
-            this.fetchImages(hashes);
+            console.log(`${this.posts.length} posts, ${images.length} images`)
+
+            this.fetchImages(images);
         });
     },
 
-    fetchImages: function(hashes) {
+    fetchImages: function(images) {
         const start = now();
-        async.eachLimit(hashes, 10, (hash, callback) => {
-            const filename = `${downloadDir}/${hash}.jpg`;
-            fs.exists(filename, exists => {
+        async.eachLimit(images, 10, (image, callback) => {
+            image.downloadUrl = image.mp4 || image.link
+            image.filename = `${downloadDir}/${image.downloadUrl.split('/').pop()}`;
+
+            fs.exists(image.filename, exists => {
                 if (exists) {
                     callback();
                     return;
                 }
 
-                const httpStream = request(`http://i.imgur.com/${hash}.jpg`);
+                const httpStream = request(image.downloadUrl);
 
-                httpStream.pipe(fs.createWriteStream(filename));
+                httpStream.pipe(fs.createWriteStream(image.filename));
 
                 httpStream.on('error', function(err){
-                    console.log(`http download error - ${hash}`, err)
+                    console.log(`http download error - ${image.id}`, err)
                     callback();
                 });
 
                 httpStream.on('end', function () {
-                    console.log(`downloaded ${hash}`);
+                    console.log(`downloaded ${image.filename}`);
                     callback();
                 });
 
             });
         }, () => {
             console.log(`Fetched all images in ${(now() - start).toFixed(3)} ms`);
-            // console.log(this.images);
-            const fileList = hashes.map(hash => `${downloadDir}/${hash}.jpg`)
+            const fileList = images.map(image => image.filename)
             const torrent = client.seed(fileList, {
                 name: downloadDir,
                 path: './',

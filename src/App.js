@@ -1,31 +1,29 @@
 import React, { Component } from 'react';
 import Post from './Post';
 import PeerList from './PeerList';
+import FileList from './FileList';
 import SideGallery from './SideGallery';
 import WebTorrent from 'webtorrent';
-// import parseTorrent from 'parse-torrent';
-// import createTorrent from 'create-torrent';
-// var Client = require('bittorrent-tracker');
-
 
 export default class App extends Component {
     state = {
         posts: [],
         peerList: [],
         postIndex: 0,
+        tab: 'peers'
     };
 
     client = new WebTorrent();
     torrent = null;
 
     componentDidMount() {
-        window.fetch('http://swoosh.io:3100/torrent').then(res => res.blob()).then(res => {
+        window.fetch('http://localhost:3100/torrent').then(res => res.blob()).then(res => {
             this.client.add(res, null, this.onTorrent);
         }).catch(err => {
             console.log(err);
         });
 
-        window.fetch('http://swoosh.io:3100/posts').then(res => res.json()).then(res => {
+        window.fetch('http://localhost:3100/posts').then(res => res.json()).then(res => {
             this.setState({
                 posts: res,
             });
@@ -38,7 +36,7 @@ export default class App extends Component {
         // print out ips of new wires the client connects to
         torrent.on('wire', peer => {
             // keep peerList deduped
-            if (this.state.peerList.map(peer => peer.remoteAddress).includes(peer.remoteAddress)) {
+            if (this.state.peerList.map(peer => peer.remoteAddress + peer.remotePort).includes(peer.remoteAddress + peer.remotePort)) {
                 return;
             }
 
@@ -58,13 +56,13 @@ export default class App extends Component {
             })
         })
 
-        // immediately prioritize the first image
-        const currentHash = this.state.posts[this.state.postIndex].images[0].id;
-        torrent.files.find(file => file.name.substr(0,file.name.length-4) === currentHash).getBuffer((err, buffer) => {
-            let posts = this.state.posts;
-            posts[0].images[0].memoryURL = URL.createObjectURL(new Blob([buffer], { type: "image/jpeg" }));
-            this.setState({ posts })
-        })
+        // if post response came back before torrent response (or was ready),
+        // then this triggers a re-render now that the torrent is available
+        setTimeout(() => {
+            this.setState({ torrent });
+        }, 1000)
+        //TODO why is this timeout necessary ^?
+
 
         //todo remove
         window.torrent = torrent
@@ -79,29 +77,37 @@ export default class App extends Component {
     }
 
     render() {
-        var postMeta = this.state.posts[this.state.postIndex];
+        const postMeta = this.state.posts[this.state.postIndex];
 
         return (
             <div className="imgur-app">
                 <header>
-                    <div className="logo"></div>
+                    <div className="logo"/>
                 </header>
                 <div className="app content">
                     <div className="panel post">
-                        {postMeta ? <Post {...postMeta}/> : <div className="loading">Loading...</div>}
+                        {postMeta ? <Post postMeta={postMeta} torrent={this.state.torrent}/> :
+                            <div className="loading">Loading...</div>}
                     </div>
                     <div className="panel right-rail nav-buttons">
                         <button className="secondary" onClick={this.nav.bind(this, -1)}>Prev</button>
                         <button className="primary" onClick={this.nav.bind(this, 1)}>Next</button>
                     </div>
-                    <ul className="panel right-rail stats">
-                        <li>Downloaded: {Math.round(this.state.downloaded/1024/1024)}MB</li>
-                        <li>Speed: {Math.round(this.state.downloadSpeed/1024).toLocaleString()}KB/s</li>
-                        <li className="progress">
-                            <div className="progress-inner" style={{width: this.state.progress*100+'%'}}></div>
-                        </li>
-                    </ul>
-                    <PeerList className="panel right-rail peerlist" peerList={this.state.peerList}/>
+                    <div className="panel right-rail stats">
+                        <div>Downloaded: {Math.round(this.state.downloaded / 1024 / 1024)}MB</div>
+                        <div>Speed: {Math.round(this.state.downloadSpeed / 1024).toLocaleString()}KB/s</div>
+                        <div className="progress">
+                            <div className="progress-inner" style={{ width: this.state.progress * 100 + '%' }}/>
+                        </div>
+                        <div className="tab-bar cf">
+                            <h1 className={`tab-button ${this.state.tab === 'peers' ? 'active' : ''}`}
+                                onClick={this.setState.bind(this, { tab: 'peers' }, null)}>Peers</h1>
+                            <h1 className={`tab-button ${this.state.tab === 'files' ? 'active' : ''}`}
+                                onClick={this.setState.bind(this, { tab: 'files' }, null)}>Files</h1>
+                        </div>
+                        {this.state.tab === 'peers' ? <PeerList peerList={this.state.peerList}/> :
+                            <FileList torrent={this.state.torrent}/>}
+                    </div>
                     <SideGallery className="right-rail sidegallery"
                                  posts={this.state.posts}
                                  postIndex={this.state.postIndex}/>

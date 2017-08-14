@@ -66,7 +66,8 @@ footer {
     width: 100%;
 }
 
-.image img {
+.image img,
+.image video {
     max-width: 100%;
     display: block;
     margin: 0 auto;
@@ -79,10 +80,6 @@ footer {
 .right-rail {
     margin: 0 0 30px 30px;
     width: 300px;
-}
-
-.right-rail.peerlist{
-    padding: 10px;
 }
 
 .nav-buttons button {
@@ -130,24 +127,67 @@ footer {
 .sidegallery h1 {
     float: left;
     width: 185px;
-    height: 55px;
+    height: 76px;
     padding: 10px;
+    overflow: hidden;
 }
 
 .progress {
     margin-top: 10px;
     height: 20px;
     background: #000;
-    border-radius: 3px;
+    border-radius: 2px;
+    /*overflow: hidden;*/
 }
 
 .progress-inner {
-    background: #1bb76e;
     height: 100%;
-    box-shadow: 0 0 5px 5px rgba(27, 183, 110, 0.5);
-    border-radius: 3px;
+    border-radius: 1px;
+    animation: 3s pulse-progress infinite;
 }
+
+@keyframes pulse-progress {
+    0%   { box-shadow: 0 0 10px 4px rgba(27, 183, 110, 0.7); background-color: rgba(27, 183, 110, 1); }
+    50%  { box-shadow: 0 0 3px 1px rgba(27, 183, 110, 0.4);  background-color: rgba(27, 183, 110, 0.9);}
+    100% { box-shadow: 0 0 10px 4px rgba(27, 183, 110, 0.7); background-color: rgba(27, 183, 110, 1);}
+}
+
 
 .stats {
     padding: 10px;
+}
+
+.stats div{
+    margin-bottom: 5px;
+}
+
+.image-loading {
+    padding: 20px;
+}
+
+.tab-bar {
+    margin: 15px 0 10px 0;
+    border-bottom: 1px solid white;
+}
+
+.tab-button {
+    color: #b4b4b4;
+    float: left;
+    padding: 5px;
+
+}
+
+.tab-button.active {
+    font-weight: bold;
+    color: white;
+}
+
+.filelist,
+.peerlist {
+    padding: 5px;
+}
+
+.filelist li,
+.peerlist li{
+    margin-bottom: 5px;
 }
