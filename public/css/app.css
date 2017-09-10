@@ -101,7 +101,7 @@ footer {
 }
 
 .sidegallery {
-    float: left;
+    float: right;
 }
 
 .sidegallery li {
@@ -174,7 +174,7 @@ footer {
     color: #b4b4b4;
     float: left;
     padding: 5px;
-
+    cursor: pointer;
 }
 
 .tab-button.active {

@@ -5,6 +5,8 @@ import FileList from './FileList';
 import SideGallery from './SideGallery';
 import WebTorrent from 'webtorrent';
 
+const host = 'swoosh.io:3100';
+
 export default class App extends Component {
     state = {
         posts: [],
@@ -17,13 +19,13 @@ export default class App extends Component {
     torrent = null;
 
     componentDidMount() {
-        window.fetch('http://localhost:3100/torrent').then(res => res.blob()).then(res => {
+        window.fetch(`http://${host}/torrent`).then(res => res.blob()).then(res => {
             this.client.add(res, null, this.onTorrent);
         }).catch(err => {
             console.log(err);
         });
 
-        window.fetch('http://localhost:3100/posts').then(res => res.json()).then(res => {
+        window.fetch(`http://${host}/posts`).then(res => res.json()).then(res => {
             this.setState({
                 posts: res,
             });
@@ -51,8 +53,6 @@ export default class App extends Component {
                 downloaded: torrent.downloaded,
                 downloadSpeed: torrent.downloadSpeed,
                 progress: torrent.progress
-
-
             })
         })
 
@@ -113,7 +113,7 @@ export default class App extends Component {
                                  postIndex={this.state.postIndex}/>
                 </div>
                 <footer>
-                    &copy; 2017 - The CDN-less Imgur App
+                    The CDN-less Imgur App
                 </footer>
             </div>
         );

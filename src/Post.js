@@ -52,7 +52,8 @@ export default class Post extends Component {
                 height: this.props.postMeta.height,
                 width: this.props.postMeta.width,
                 link: this.props.postMeta.link,
-                title: this.props.postMeta.title
+                title: this.props.postMeta.title,
+                animated: this.props.postMeta.animated
             }];
     }
 

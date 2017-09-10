@@ -5,34 +5,18 @@ const WebTorrent = require('webtorrent-hybrid');
 const cors = require('cors');
 const fs = require('fs');
 
+const host = 'swoosh.io:8900';
+
 const client = new WebTorrent({
     tracker: {
-        announceList: ['http://swoosh.io:8900', 'ws://swoosh.io:8900'], // list of tracker server urls
-        getAnnounceOpts: function () {
-            // Provide a callback that will be called whenever announce() is called
-            // internally (on timer), or by the user
-            return {
-                uploaded: 0,
-                downloaded: 0,
-                left: 0,
-                customParam: 'blah' // custom parameters supported
-            }
-        }
+        announceList: [`http://${host}`, `ws://${host}`], // list of tracker server urls
     },
     dht: false
 });
 const app = express();
-const clientId = 'aa587c2ff1c3c66';
+const clientId = '7191c3217776292';
 const now = require('performance-now');
 const downloadDir = 'images';
-
-// // get the number of seeders for a particular torrent
-// server.torrents[infoHash].complete
-//
-// // get the number of leechers for a particular torrent
-// server.torrents[infoHash].incomplete
-//
-// // get the peers who are in a particular torrent swarm
 
 const tracker = {
     images: [],
@@ -54,7 +38,7 @@ const tracker = {
         };
         request(options, (error, response, body) => {
             if (error) {
-                console.log(error);
+                console.error(error);
             }
 
             // limit number of posts
@@ -104,7 +88,7 @@ const tracker = {
             const torrent = client.seed(fileList, {
                 name: downloadDir,
                 path: './',
-                announceList: [['http://swoosh.io:8900/announce'], ['ws://swoosh.io:8900/announce']]
+                announceList: [[`http://${host}/announce`], [`ws://${host}/announce`]]
             }, this.onSeed.bind(this));
 
             torrent.on('warning', function (err) {
@@ -137,7 +121,7 @@ const tracker = {
         this.startApiServer();
 
         setInterval(() => {
-            console.log(torrent.numPeers);
+            console.log(`${torrent.numPeers} peers connected`);
         }, 1000);
     }
 };
