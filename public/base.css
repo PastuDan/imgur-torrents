@@ -51,8 +51,11 @@ header {
     --headerBackgroundDark: #121212;
     --dropTargetDark: rgba(74, 75, 78, 0.3);
 
-    --greenStatusLight: rgba(15, 255, 0, 0.5);
-    --greenStatusLightShadow: rgba(15, 255, 0, 0.5)
+    --greenStatusLightLight: rgba(15, 255, 0, 0.5);
+    --greenStatusLightShadowLight: rgba(15, 255, 0, 0.5);
+
+    --greenStatusLightDark: rgba(15, 255, 0, 0.9);
+    --greenStatusLightShadowDark: rgba(15, 255, 0, 0.7);
 }
 
 /* clearfix */

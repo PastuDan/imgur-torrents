@@ -26,7 +26,12 @@
     transition: 200ms background-color, 200ms box-shadow;
 }
 
-.status-light.active {
-    background-color: var(--greenStatusLight);
-    box-shadow: 0 0 6px 3px var(--greenStatusLightShadow);
+.light .status-light.active {
+    background-color: var(--greenStatusLightLight);
+    box-shadow: 0 0 6px 3px var(--greenStatusLightShadowLight);
+}
+
+.dark .status-light.active {
+    background-color: var(--greenStatusLightDark);
+    box-shadow: 0 0 6px 3px var(--greenStatusLightShadowDark);
 }

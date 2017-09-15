@@ -1,23 +1,46 @@
 import React, {Component} from 'react';
-import Header from './Header'
+import moment from 'moment';
 
-// import '../styles/reset.css'
-// import '../styles/base.css'
+const cycleInterval = 3 * 1000;
 
-export default class App extends Component {
+console.log(moment.format('YY'));
+
+export default class Header extends Component {
     state = {
         wideLogoLetters: true,
         active: false,
     };
 
-    componentDidMount() {
+    messageIndex = 0;
 
+    componentDidMount() {
         //todo: do this in css animation
-        window.setTimeout(() => {
+        const animateLogoLetters = () => {
+            window.setTimeout(() => {
+                this.setState({
+                    wideLogoLetters: false
+                })
+            }, 0);
+        }
+
+        animateLogoLetters();
+
+        window.setInterval(() => {
+            const headerMessages = [
+                'PowerUp',
+                '8',
+                '☀️ 80˚'
+            ]
+
+            this.messageIndex++;
+
             this.setState({
-                wideLogoLetters: false
+                wideLogoLetters: false,
+                message: headerMessages[this.messageIndex % headerMessages.length]
+            }, () => {
+                animateLogoLetters();
             })
-        }, 0);
+        }, cycleInterval)
     }
 
     handleClick = () => {
